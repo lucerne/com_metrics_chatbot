@@ -1,3 +1,7 @@
 # Complete data directory #
 ###################
 data
+
+**/*.ipynb_checkpoints/
+# ignore all logs
+*.log
