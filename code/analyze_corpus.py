@@ -101,3 +101,51 @@ def analyzeVerbRoot(doc):
     counter = Counter([token.lemma_ for token in doc if token.pos_=='VB'])
     return counter
 
+
+def loadEmotionWords(filename):
+    '''Load list of emotion words'''
+    with open(filename, 'r') as f:
+        lines = f.read() 
+    words = set(lines.strip().split())
+    return words    
+
+def analyzeEmotionWords(doc, emos): 
+    counter = Counter([token.text.lower() for token in doc if token.text.lower() in emos])    
+    return counter
+
+def analyzeVerbs(doc): 
+    LinkingVerbs = set(['be', 'become', 'seem'])
+    HelpingVerbs = set(['be', 'can', 'may', 'must', 'shall', 'will'])
+
+    # verb token
+    totalVerbs = []
+    # for action verbs
+    action = defaultdict(int)
+    # for linking verbs
+    linking = defaultdict(int)
+    # for helping verbs
+    helping = defaultdict(int)
+    helpingMain = defaultdict(int)
+    # dictionary with words that didn't fit categories for some reason...
+    others = defaultdict(int)
+    
+    
+    # adds words to totalVerbs if they are verbs
+    totalVerbs += [token for token in doc if (token.pos_ == "VERB")]
+
+    print(totalVerbs)
+    for verb in totalVerbs:
+        lefts = [v for v in verb.lefts] 
+        if len(lefts) == 0: 
+            continue 
+        left = lefts[0]
+        if left.lemma_ in HelpingVerbs: 
+            helping[left.lemma_] += 1
+            helpingMain[verb.lemma_] += 1        
+        elif verb.lemma_ in LinkingVerbs: 
+            linking[verb.lemma_] += 1
+        else: 
+            action[verb.lemma_] += 1            
+    
+    return Counter(action), Counter(linking), Counter(helping), Counter(helpingMain)
+
