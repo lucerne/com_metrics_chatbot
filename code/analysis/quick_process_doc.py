@@ -123,10 +123,11 @@ read_files = [join(directory, f) for f in listdir(directory) if isfile(join(dire
 counter = Counter('')
 for infile in read_files:
     with open(infile, 'r') as f:
+        print('reading files... '  + infile)
         text = f.read()
         texts = iter([text])
         i = 0 
-        for doc in nlp.pipe(texts, n_threads=16, batch_size=10000):
+        for doc in nlp.pipe(texts, batch_size=2000):
             counter += analyzeVerb(doc)
             print(i)
             i += 1
