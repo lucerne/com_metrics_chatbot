@@ -101,3 +101,15 @@ def analyzeVerbRoot(doc):
     counter = Counter([token.lemma_ for token in doc if token.pos_=='VB'])
     return counter
 
+
+def loadEmotionWords(filename):
+    '''Load list of emotion words'''
+    with open(filename, 'r') as f:
+        lines = f.read() 
+    words = set(lines.strip().split())
+    return words    
+
+def analyzeEmotionWords(doc, emos): 
+    counter = Counter([token.text.lower() for token in doc if token.text.lower() in emos])    
+    return counter
+
