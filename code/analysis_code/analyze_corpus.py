@@ -116,6 +116,7 @@ def analyzeEmotionWords(doc, emos):
     counter = Counter([token.text.lower() for token in doc if token.text.lower() in emos])    
     return counter
 
+
 def analyzeVerbs(doc): 
     LinkingVerbs = set(['be', 'become', 'seem'])
     HelpingVerbs = set(['be', 'can', 'may', 'must', 'shall', 'will'])
@@ -136,7 +137,6 @@ def analyzeVerbs(doc):
     # adds words to totalVerbs if they are verbs
     totalVerbs += [token for token in doc if (token.pos_ == "VERB")]
 
-    print(totalVerbs)
     for verb in totalVerbs:
         lefts = [v for v in verb.lefts] 
         if len(lefts) == 0: 
@@ -151,4 +151,6 @@ def analyzeVerbs(doc):
             action[verb.lemma_] += 1            
     
     return Counter(action), Counter(linking), Counter(helping), Counter(helpingMain)
+
+
 
