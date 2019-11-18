@@ -1,3 +1,5 @@
+from collections import Counter
+
 def analyzePOS(doc):  
     '''
     parameter : doc is an article by a single author
