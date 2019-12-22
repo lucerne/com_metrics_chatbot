@@ -33,8 +33,6 @@ def analyzeSentence(doc):
     assume sentence length is measured by number of words
     return : counter of sentence lengths'''
     lengths = Counter([len(sentence) for sentence in doc.sents])
-    for sentence in doc.sents: 
-        print("SENTENCE : " + sentence.text)
     return lengths
 
 def analyzeWordLength(doc): 
