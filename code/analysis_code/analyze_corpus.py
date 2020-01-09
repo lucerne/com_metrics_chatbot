@@ -42,6 +42,15 @@ def analyzeWordLength(doc):
     counter = Counter([len(token.lemma_) for token in doc])
     return counter
 
+def analyzeWordSize(doc): 
+    '''parameter : doc is an article by a single author
+    return : counter of word lengths
+    '''
+    total = 0
+    for token in doc: 
+        total += 1
+    return total 
+
 def analyzePunctuation(doc): 
     '''parameter: doc is an article by a single author
     return : counter of punctuation symbols '''
