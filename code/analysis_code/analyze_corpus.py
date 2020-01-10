@@ -46,10 +46,11 @@ def analyzeWordSize(doc):
     '''parameter : doc is an article by a single author
     return : counter of word lengths
     '''
-    total = 0
-    for token in doc: 
-        total += 1
-    return total 
+    sz = 0
+    for token in doc:
+        if (token.text).isalpha():
+            sz += 1
+    return sz 
 
 def analyzePunctuation(doc): 
     '''parameter: doc is an article by a single author
@@ -120,9 +121,16 @@ def loadEmotionWords(filename):
     return words    
 
 def analyzeEmotionWords(doc, emos): 
+    '''Filter by presence in emotion words lexicon'''
     counter = Counter([token.text.lower() for token in doc if token.text.lower() in emos])    
     return counter
 
+def scoreEmotion(doc, emos):
+    '''Article score by occurances in emotion words lexicon'''
+    sz = analyzeWordSize(doc)
+    counter = Counter([token.text.lower() for token in doc if token.text.lower() in emos])    
+    num = sumCounter(counter)
+    return float(num/sz)
 
 def analyzeVerbs(doc): 
     LinkingVerbs = set(['be', 'become', 'seem'])
