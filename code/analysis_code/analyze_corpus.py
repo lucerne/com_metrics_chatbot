@@ -132,6 +132,27 @@ def scoreEmotion(doc, emos):
     num = sumCounter(counter)
     return float(num/sz)
 
+def scoreEmos(line, emos): 
+    '''Use string functions to find emotion words in a string'''
+    words = line.strip().split()
+    words = [w for w in words if w.isalpha()]
+    emoWords = [w for w in words if w in emos]
+    return float(len(emoWords))/ len(words)
+
+def scoreArticle(infile, emos): 
+    '''
+    compute the emotion scores of input files
+    infile : name of file containing articles 
+    result : list of scores
+    '''
+    line = infile.readline()
+    result = []
+    while line:
+        s = scoreEmos(line, emos)
+        result.append(s)
+        line = infile.readline()
+    return result
+
 def analyzeVerbs(doc): 
     LinkingVerbs = set(['be', 'become', 'seem'])
     HelpingVerbs = set(['be', 'can', 'may', 'must', 'shall', 'will'])
