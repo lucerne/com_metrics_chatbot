@@ -137,7 +137,10 @@ def scoreEmos(line, emos):
     words = line.strip().split()
     words = [w for w in words if w.isalpha()]
     emoWords = [w for w in words if w in emos]
-    return float(len(emoWords))/ len(words)
+    if len(words) > 0: 
+        return float(len(emoWords))/ len(words)
+    else: 
+        return None 
 
 def scoreArticle(infile, emos): 
     '''
@@ -149,7 +152,8 @@ def scoreArticle(infile, emos):
     result = []
     while line:
         s = scoreEmos(line, emos)
-        result.append(s)
+        if s:
+            result.append(s)
         line = infile.readline()
     return result
 
