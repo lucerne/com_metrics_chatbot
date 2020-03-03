@@ -122,8 +122,31 @@ def loadEmotionWords(filename):
 
 def analyzeEmotionWords(doc, emos): 
     '''Filter by presence in emotion words lexicon'''
-    counter = Counter([token.text.lower() for token in doc if token.text.lower() in emos])    
-    return counter
+    # emo tokens
+    totalEmos = []
+    # emo word or phrase start with not
+    emoWords = defaultdict(int)
+    
+    # get all emotional words  
+    totalEmos += [token for token in doc if token.text.lower() in emos]
+    for e in totalEmos: 
+        sent = e.sent.text
+        i = sent.find(e.lemma_)
+        if i == 0: 
+            emoWords[e.lemma_] += 1  
+        else: 
+            if 'not' == sent[i-1]: 
+                phrase = 'not ' + e.lemma_
+                emoWords[phrase] += 1
+            elif i-2 >= 0 and 'not' == sent[i-2]: 
+                phrase = 'not ' + e.lemma_
+                emoWords[phrase] += 1 
+            elif 'not' in sent[:i]: 
+                phrase = '! ' + e.lemma_
+                emoWords[phrase] += 1
+            else: 
+                emoWords[e.lemma_] += 1  
+    return Counter(emoWords)
 
 def scoreEmotion(doc, emos):
     '''Article score by occurances in emotion words lexicon'''
@@ -156,6 +179,18 @@ def scoreArticle(infile, emos):
             result.append(s)
         line = infile.readline()
     return result
+
+def totalWords(infile): 
+    '''
+    compute total number of words in the file
+    '''
+    line = infile.readline()
+    count = 0
+    while line:
+        words = line.split(' ') 
+        count += len(words)
+        line = infile.readline()
+    return count
 
 def analyzeVerbs(doc): 
     LinkingVerbs = set(['be', 'become', 'seem'])
@@ -191,6 +226,4 @@ def analyzeVerbs(doc):
             action[verb.lemma_] += 1            
     
     return Counter(action), Counter(linking), Counter(helping), Counter(helpingMain)
-
-
-
+ 
