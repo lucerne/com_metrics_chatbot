@@ -1,13 +1,15 @@
 from collections import Counter
 from collections import defaultdict
+import numpy as np
 
 def termFreq(values, N): 
     # see https://towardsdatascience.com/tf-idf-for-document-ranking-from-scratch-in-python-on-real-world-dataset-796d339a4089
-    # tf(t,d) = count of t in d / number of words in d
-    return v*1.0/N for v in values 
+    # tf(t,d) = count of t / number of words
+    '''@input N number of documents'''
+    return [v*1.0/N for v in values]
 
 def docFreq(keys, directory): 
-    ''' @input keys : unique words in a directory
+    ''' @input keys : unique words in a directory, i.e. emos
     filesDir : folder to the corpus
     df(t) = occurrence of t in documents
     @return : counter of word : doc freq
@@ -32,24 +34,24 @@ def getFreq(infile, counter):
         line = infile.readline()
     return counter  
 
-def invDocFreq(keys, directory): 
+def invDocFreq(counter, N): 
     ''' @input keys : unique words in a directory
     idf(t) = log(N/(df + 1))
     inverse document frequency 
     @return counter of words-idf 
-    ''' 
-    result = Counter()
-    for k in keys: 
-        result[k] = np.log(N / (counter[k] + 1))  
+    '''  
+    result = {}
+    for k in counter.keys(): 
+        result[k] = np.log(N*1.0 / (counter[k] + 1))  
     return result
 
-def tfIdf(keys, directory): 
+def tfIdf(keys, directory, N): 
     ''' @input keys : unique words in a directory
     tf-idf(t, d) = tf(t, d) * log(N/(df + 1))
     @return counter of words- tf-idf 
     ''' 
     df = docFreq(keys, directory)
-    idf = invDocFreq(keys, directory)
+    idf = invDocFreq(keys, N)
     counter = Counter() 
     for k in keys: 
         result[k] = idf[k] * idf[k] 
