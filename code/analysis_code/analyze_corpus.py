@@ -3,21 +3,19 @@ from collections import defaultdict
 import numpy as np
 import re
 
-def termFreq(infile, keys, M): 
+def termFreq(directory, keys, M): 
     # see https://towardsdatascience.com/tf-idf-for-document-ranking-from-scratch-in-python-on-real-world-dataset-796d339a4089
     '''@input M number of words in one document
     tf(t,d) = count of a word in one document / number of words in one document
     @result 
-    '''    
-    line = infile.readline() 
-    while line:
-        line = re.sub('[^0-9a-zA-Z]+', '', line)
-        words = line.strip().split()
-        words = [w for w in words if w.isalpha()] 
-        for k in keys: 
-            if k in line: 
-                counter[k] += 1  
-        line = infile.readline()
+    '''        
+    read_files = glob.glob(directory + '*.txt')
+    result = []
+   
+    for infile in read_files:
+        with open(infile, 'r', errors='replace') as f:
+            counter += getFreq(infile, counter)
+ 
     result = {}
     for k in counter.keys(): 
         result[k] = counter[k]*1.0/M
@@ -38,14 +36,18 @@ def docFreq(keys, directory):
             counter += getFreq(infile, counter)
     return counter 
      
-def getFreq(infile, counter): 
+def getFreq(directory, keys): 
     ''' @input infile : article in txt format
     @return counter : keys and their occurances 
     '''
+    counter = Counter({k:0 for k in keys})
     line = infile.readline() 
     while line:
-        for k in keys: 
-            if k in line: 
+        line = re.sub('[^0-9a-zA-Z]+', '', line)
+        words = line.strip().split()
+        words = [w for w in words if w.isalpha()] 
+        for w in words: 
+            if w in keys: 
                 counter[k] += 1  
         line = infile.readline()
     return counter  
