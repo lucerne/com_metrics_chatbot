@@ -3,78 +3,95 @@ from collections import defaultdict
 import numpy as np
 import re
 
-def termFreq(directory, keys, M): 
+def docTermFreq(read_files, keys=None): 
+    # see https://towardsdatascience.com/tf-idf-for-document-ranking-from-scratch-in-python-on-real-world-dataset-796d339a4089
+    '''@input M number of words in one document
+    tf(t,d) = count of a word in one document / number of words in one document
+    @result 
+    '''         
+    counters = []
+    sizes = []
+    for infile in read_files:
+        with open(infile, 'r', errors='replace') as f:
+            c, M = getFreq(f, keys) 
+            counters.append(c)
+            sizes.append(M)
+    return counters, sizes
+
+def getFreq(infile, keys=None): 
+    ''' @input infile : article in txt format
+    @return counter : keys and their occurances 
+    '''
+    c = Counter({k:0 for k in keys})
+    line = infile.readline() 
+    M = 0
+    while line:
+        line =  re.sub(r'[^\w]', ' ', line)
+        words = line.strip().split()
+        words = [w.lower() for w in words if w.isalpha()] 
+        M += len(words)
+        for w in words: 
+            if not keys:
+                c[w] += 1
+            elif w in keys: 
+                c[w] += 1
+        line = infile.readline()
+    return c, M
+
+def termFreq(counters, sizes): 
     # see https://towardsdatascience.com/tf-idf-for-document-ranking-from-scratch-in-python-on-real-world-dataset-796d339a4089
     '''@input M number of words in one document
     tf(t,d) = count of a word in one document / number of words in one document
     @result 
     '''        
-    read_files = glob.glob(directory + '*.txt')
     result = []
-   
-    for infile in read_files:
-        with open(infile, 'r', errors='replace') as f:
-            counter += getFreq(infile, counter)
- 
-    result = {}
-    for k in counter.keys(): 
-        result[k] = counter[k]*1.0/M
-    return result
+    N = 0
+    for i in range(len(counters)): 
+        c = counters[i]
+        s = sizes[i]  
+        r = {k:c[k]*1.0/s for k in c.keys()}
+        result.append(r)
+    return result 
 
-def docFreq(keys, directory): 
-    ''' @input keys : unique words in a directory, i.e. emos
+def docFreq(counters): 
+    ''' @input counters : counters of documents from a directory 
     directory : folder to the corpus
     tf(t,d) = count of a word in corpus / number of words in corpus
     df(t) = occurrence of t in documents
     @return : counter of word : doc freq
     '''
-    read_files = glob.glob(directory + '*.txt')
-    counter = Counter({k:0 for k in keys})
-   
-    for infile in read_files:
-        with open(infile, 'r', errors='replace') as f:
-            counter += getFreq(infile, counter)
-    return counter 
+    counter = Counter() 
+    for c in counters: 
+        counter += c  
+    return counter, len(counters)
      
-def getFreq(directory, keys): 
-    ''' @input infile : article in txt format
-    @return counter : keys and their occurances 
-    '''
-    counter = Counter({k:0 for k in keys})
-    line = infile.readline() 
-    while line:
-        line = re.sub('[^0-9a-zA-Z]+', '', line)
-        words = line.strip().split()
-        words = [w for w in words if w.isalpha()] 
-        for w in words: 
-            if w in keys: 
-                counter[k] += 1  
-        line = infile.readline()
-    return counter  
 
 def invDocFreq(counter, N): 
-    ''' @input keys : unique words in a directory
-    N : number of words in a dictory
-    idf(t) = log(N/(df + 1))
-    inverse document frequency 
-    @return counter of words-idf 
-    ''for k in counter.keys(): '  
+    ''' @input counter : counter for corpus
+    N : number of documents in a dictory
+    idf(t) = log(N/(df + 1)) 
+    @return dictionary of idf
+    '''    
     result = {}
     for k in counter.keys(): 
         result[k] = np.log(N*1.0 / (counter[k] + 1))  
     return result
 
-def tfIdf(keys, N): 
-    ''' @input keys : unique words in a directory
+def tfIdf(tfs, idf): 
+    ''' @input tf : term frequency
     tf-idf(t, d) = tf(t, d) * log(N/(df + 1))
-    @return counter of words- tf-idf 
-    ''' 
-    tf = termFreq(keys, N)
-    idf = invDocFreq(keys, N)
-    counter = Counter() 
-    for k in keys: 
-        result[k] = tf[k] * idf[k] 
+    @return dictionary of words- tf-idf 
+    '''    
+    result = []
+    for tf in tfs:
+        r = {}
+        for k in idf.keys():
+            r[k] = tf[k] * idf[k]
+        result.append(r)
     return result
+
+def sortByValue(d):
+    return {k: v for k, v in sorted(d.items(), key=lambda item: item[1], reverse=True)} 
     
 def analyzePOS(doc):  
     '''
