@@ -1,16 +1,32 @@
 from collections import Counter
 from collections import defaultdict
 import numpy as np
+import re
 
-def termFreq(values, N): 
+def termFreq(infile, keys, M): 
     # see https://towardsdatascience.com/tf-idf-for-document-ranking-from-scratch-in-python-on-real-world-dataset-796d339a4089
-    # tf(t,d) = count of t / number of words
-    '''@input N number of documents'''
-    return [v*1.0/N for v in values]
+    '''@input M number of words in one document
+    tf(t,d) = count of a word in one document / number of words in one document
+    @result 
+    '''    
+    line = infile.readline() 
+    while line:
+        line = re.sub('[^0-9a-zA-Z]+', '', line)
+        words = line.strip().split()
+        words = [w for w in words if w.isalpha()] 
+        for k in keys: 
+            if k in line: 
+                counter[k] += 1  
+        line = infile.readline()
+    result = {}
+    for k in counter.keys(): 
+        result[k] = counter[k]*1.0/M
+    return result
 
 def docFreq(keys, directory): 
     ''' @input keys : unique words in a directory, i.e. emos
-    filesDir : folder to the corpus
+    directory : folder to the corpus
+    tf(t,d) = count of a word in corpus / number of words in corpus
     df(t) = occurrence of t in documents
     @return : counter of word : doc freq
     '''
@@ -36,25 +52,26 @@ def getFreq(infile, counter):
 
 def invDocFreq(counter, N): 
     ''' @input keys : unique words in a directory
+    N : number of words in a dictory
     idf(t) = log(N/(df + 1))
     inverse document frequency 
     @return counter of words-idf 
-    '''  
+    ''for k in counter.keys(): '  
     result = {}
     for k in counter.keys(): 
         result[k] = np.log(N*1.0 / (counter[k] + 1))  
     return result
 
-def tfIdf(keys, directory, N): 
+def tfIdf(keys, N): 
     ''' @input keys : unique words in a directory
     tf-idf(t, d) = tf(t, d) * log(N/(df + 1))
     @return counter of words- tf-idf 
     ''' 
-    df = docFreq(keys, directory)
+    tf = termFreq(keys, N)
     idf = invDocFreq(keys, N)
     counter = Counter() 
     for k in keys: 
-        result[k] = idf[k] * idf[k] 
+        result[k] = tf[k] * idf[k] 
     return result
     
 def analyzePOS(doc):  
