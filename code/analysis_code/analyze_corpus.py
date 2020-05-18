@@ -49,8 +49,9 @@ def termFreq(counters, sizes):
     for i in range(len(counters)): 
         c = counters[i]
         s = sizes[i]  
-        r = {k:c[k]*1.0/s for k in c.keys()}
-        result.append(r)
+        if s > 0: 
+            r = {k:c[k]*1.0/s for k in c.keys()}
+            result.append(r)
     return result 
 
 def docFreq(counters): 
