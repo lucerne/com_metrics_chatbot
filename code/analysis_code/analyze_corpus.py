@@ -287,9 +287,13 @@ def totalWords(infile):
 def analyzeVerbs(doc): 
     LinkingVerbs = set(['be', 'become', 'seem'])
     HelpingVerbs = set(['be', 'can', 'may', 'must', 'shall', 'will'])
+    
+    Extra = set(['I\'m', 'you\'re', 'they\'re', ])
 
     # verb token
     totalVerbs = []
+    # aux token
+    totalAux = []
     # for action verbs
     action = defaultdict(int)
     # for linking verbs
@@ -300,22 +304,34 @@ def analyzeVerbs(doc):
     # dictionary with words that didn't fit categories for some reason...
     others = defaultdict(int)
     
+    totalAux += [token for token in doc if (token.pos_ == "AUX")]
+    for aux in totalAux: 
+        rights = [a for a in aux.lefts] 
+        if len(rights) > 0 and rights[0].pos_ != "VERB" and rights[0].lemma_ != "doing" and aux.lemma_ in LinkingVerbs:
+            linking[aux.lemma_] += 1
     
     # adds words to totalVerbs if they are verbs
     totalVerbs += [token for token in doc if (token.pos_ == "VERB")]
 
-    for verb in totalVerbs:
+    for verb in totalVerbs: 
         lefts = [v for v in verb.lefts] 
+#         print(verb.lemma_, [l.lemma_ for l in lefts])
         if len(lefts) == 0: 
             continue 
-        left = lefts[0]
-        if left.lemma_ in HelpingVerbs: 
-            helping[left.lemma_] += 1
-            helpingMain[verb.lemma_] += 1        
-        elif verb.lemma_ in LinkingVerbs: 
-            linking[verb.lemma_] += 1
         else: 
-            action[verb.lemma_] += 1            
+            i = 0
+            while i < len(lefts):   
+                l = lefts[len(lefts)-i-1] 
+                if l.lemma_ in HelpingVerbs: 
+                    helping[l.lemma_] += 1
+                    helpingMain[verb.lemma_] += 1  
+                    break
+                i += 1
+            if i == len(lefts):
+                if verb.lemma_ in LinkingVerbs: 
+                    linking[verb.lemma_] += 1
+                else: 
+                    action[verb.lemma_] += 1            
     
     return Counter(action), Counter(linking), Counter(helping), Counter(helpingMain)
  
