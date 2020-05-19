@@ -206,6 +206,35 @@ def analyzeVerbRoot(doc):
     return counter
 
 
+def processMoreSenseFile(filename):
+    '''
+    input : sense file
+    return : dictionary of pos or neg emotion word : scores
+    '''
+    emotionScores = {}
+    with open(filename, 'r', errors='replace') as f:
+        i = 1
+        line = f.readline()
+        count = 0
+        while line: 
+            words = line.strip().split()
+            word = re.split(r'(\W+)', words[0])[0]
+            sentiment = words[-1]
+            category = words[-2]
+            
+            if ('positive' == category or 'negative' == category) and ('1' == sentiment):
+                emotionScores[word] = 0
+            elif ('positive' != category and 'negative' != category) and ('1' == sentiment):
+                count += 1
+                
+            if i % 8 == 0: 
+                if word in emotionScores: 
+                    emotionScores[word] = count
+                count = 0
+            line = f.readline()
+            i += 1 
+    return emotionScores
+
 def loadEmotionWords(filename):
     '''Load list of emotion words'''
     with open(filename, 'r') as f:
